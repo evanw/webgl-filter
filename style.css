@@ -121,6 +121,7 @@ canvas {
   padding: 15px;
   color: white;
   display: none;
+  z-index: 2;
 }
 
 table { border-collapse: collapse; width: 100%; }
