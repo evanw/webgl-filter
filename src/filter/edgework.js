@@ -84,14 +84,14 @@ EdgeWorkFilter.prototype.drawTo = function(original, texture) {
     texture.drawTo(function() {
         original.use();
         this_.firstShader.uniforms({
-            delta: [1 / 800, 0],
+            delta: [1 / original.width, 0],
             radius: this_.radius
         }).drawRect();
     });
     texture.drawToUsingSelf(function() {
         texture.use();
         this_.secondShader.uniforms({
-            delta: [0, 1 / 600],
+            delta: [0, 1 / original.height],
             radius: this_.radius
         }).drawRect();
     });

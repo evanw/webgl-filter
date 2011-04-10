@@ -127,7 +127,9 @@ function main() {
         new SwirlFilter(),
         new ZoomBlurFilter(),
         new DotScreenFilter(),
-        new EdgeWorkFilter()
+        new EdgeWorkFilter(),
+        new InkFilter(),
+        new HexagonalPixelateFilter()
     ];
     for (var i = 0; i < filters.length; i++) {
         $('select').append('<option>' + filters[i].name + '</option>');
