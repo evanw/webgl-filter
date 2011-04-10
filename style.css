@@ -1,6 +1,7 @@
 body {
   margin: 0;
   color: black;
+  overflow: hidden;
   font: 12px Arial, sans-serif;
 }
 
@@ -10,9 +11,13 @@ body {
   top: 0;
   right: 0;
   height: 40px;
+  background: #DFDFDF;
   background: -webkit-gradient(linear, left top, left bottom, from(#EFEFEF), to(#BFBFBF));
+  background: -moz-linear-gradient(#EFEFEF, #BFBFBF);
   z-index: 1;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.75);
+  -moz-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.75);
+  -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.75);
   line-height: 40px;
   padding-left: 10px;
 }
@@ -62,8 +67,11 @@ body {
   overflow: hidden;
   position: relative;
   display: inline-block;
+  background: white;
   border: 1px solid black;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.75);
+  -moz-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.75);
+  -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.75);
 }
 
 .marker {
@@ -71,6 +79,8 @@ body {
   height: 14px;
   border: 2px solid white;
   box-shadow: 0 2px 2px black, inset 0 2px 2px black;
+  -moz-box-shadow: 0 2px 2px black, inset 0 2px 2px black;
+  -webkit-box-shadow: 0 2px 2px black, inset 0 2px 2px black;
   border-radius: 100px;
   position: absolute;
   left: 50%;
@@ -89,6 +99,8 @@ body {
   border-radius: 2px;
   background: white;
   box-shadow: 0 1px 1px black;
+  -moz-box-shadow: 0 1px 1px black;
+  -webkit-box-shadow: 0 1px 1px black;
 }
 
 canvas {
@@ -104,6 +116,8 @@ canvas {
   border: 2px solid white;
   border-radius: 10px;
   box-shadow: 0 2px 4px black;
+  -moz-box-shadow: 0 2px 4px black;
+  -webkit-box-shadow: 0 2px 4px black;
   padding: 15px;
   color: white;
   display: none;
@@ -143,4 +157,8 @@ td { vertical-align: top; }
 
 .sample-image {
   cursor: pointer;
+}
+
+.loading {
+  padding: 10px 15px;
 }
