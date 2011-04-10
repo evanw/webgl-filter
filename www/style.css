@@ -1,0 +1,146 @@
+body {
+  margin: 0;
+  color: black;
+  font: 12px Arial, sans-serif;
+}
+
+.toolbar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  height: 40px;
+  background: -webkit-gradient(linear, left top, left bottom, from(#EFEFEF), to(#BFBFBF));
+  z-index: 1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.75);
+  line-height: 40px;
+  padding-left: 10px;
+}
+
+#load-save, #filters, #controls {
+  float: left;
+}
+
+#load-image {
+  background: url(up_alt.png) -5px 3px no-repeat;
+}
+
+#save-image {
+  background: url(down_alt.png) -5px 3px no-repeat;
+}
+
+#load-image, #save-image {
+  float: left;
+  cursor: pointer;
+  border-right: 1px solid #7F7F7F;
+  padding: 0 10px 0 32px;
+  margin-right: 10px;
+}
+
+.slider-label {
+  padding-left: 20px;
+}
+
+.slider {
+  display: inline-block;
+  width: 180px;
+  margin: 0 5px;
+}
+
+.edit-area {
+  position: absolute;
+  left: 0;
+  top: 40px;
+  right: 0;
+  bottom: 0;
+  background: #7F7F7F;
+  padding: 30px;
+  overflow: auto;
+}
+
+.document {
+  overflow: hidden;
+  position: relative;
+  display: inline-block;
+  border: 1px solid black;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.75);
+}
+
+.marker {
+  width: 14px;
+  height: 14px;
+  border: 2px solid white;
+  box-shadow: 0 2px 2px black, inset 0 2px 2px black;
+  border-radius: 100px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: -8px;
+  z-index: 1;
+  cursor: move;
+}
+
+.marker div {
+  position: relative;
+  left: 5px;
+  top: 5px;
+  width: 4px;
+  height: 4px;
+  border-radius: 2px;
+  background: white;
+  box-shadow: 0 1px 1px black;
+}
+
+canvas {
+  display: block;
+}
+
+#load-image-overlay {
+  position: absolute;
+  left: 25%;
+  top: 100px;
+  right: 25%;
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid white;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px black;
+  padding: 15px;
+  color: white;
+  display: none;
+}
+
+table { border-collapse: collapse; width: 100%; }
+td { vertical-align: top; }
+
+#load-image-overlay table {
+  margin-top: 20px;
+}
+
+#load-image-overlay td {
+  width: 50%;
+  padding: 0 0 0 20px;
+}
+
+#load-image-overlay td:first-child {
+  padding: 0;
+  border-right: 1px solid white;
+}
+
+#load-image-overlay img {
+  border: 2px solid white;
+}
+
+#load-image-overlay hr {
+  border: 1px solid white;
+  margin: 20px 0;
+}
+
+#close-overlay {
+  float: right;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.sample-image {
+  cursor: pointer;
+}
