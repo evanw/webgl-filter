@@ -1,4 +1,4 @@
-![](https://github.com/evanw/webgl-filter/blob/master/filters.png)
+![](https://github.com/evanw/webgl-filter/raw/master/filters.png)
 
 # WebGL Filter
 
