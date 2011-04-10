@@ -131,7 +131,9 @@ function main() {
         new SwirlFilter(),
         new ZoomBlurFilter(),
         new DotScreenFilter(),
-        new EdgeWorkFilter()
+        new EdgeWorkFilter(),
+        new InkFilter(),
+        new HexagonalPixelateFilter()
     ];
     for (var i = 0; i < filters.length; i++) {
         $('select').append('<option>' + filters[i].name + '</option>');
@@ -190,14 +192,14 @@ BlurFilter.prototype.drawTo = function(original, texture) {
     texture.drawTo(function() {
         original.use();
         this_.shader.uniforms({
-            delta: [1 / 800, 0],
+            delta: [1 / original.width, 0],
             radius: this_.radius
         }).drawRect();
     });
     texture.drawToUsingSelf(function() {
         texture.use();
         this_.shader.uniforms({
-            delta: [0, 1 / 600],
+            delta: [0, 1 / original.height],
             radius: this_.radius
         }).drawRect();
     });
@@ -375,15 +377,77 @@ EdgeWorkFilter.prototype.drawTo = function(original, texture) {
     texture.drawTo(function() {
         original.use();
         this_.firstShader.uniforms({
-            delta: [1 / 800, 0],
+            delta: [1 / original.width, 0],
             radius: this_.radius
         }).drawRect();
     });
     texture.drawToUsingSelf(function() {
         texture.use();
         this_.secondShader.uniforms({
-            delta: [0, 1 / 600],
+            delta: [0, 1 / original.height],
             radius: this_.radius
+        }).drawRect();
+    });
+};
+
+// src/filter/hexagonalpixelate.js
+function HexagonalPixelateFilter() {
+    this.shader = new Shader(null, '\
+        uniform sampler2D texture;\
+        uniform float scale;\
+        uniform vec2 texSize;\
+        varying vec2 texCoord;\
+        void main() {\
+            vec2 tex = texCoord * texSize / scale;\
+            tex.y /= 0.866025404;\
+            tex.x -= tex.y * 0.5;\
+            \
+            vec2 a;\
+            if (tex.x + tex.y - floor(tex.x) - floor(tex.y) < 1.0) a = vec2(floor(tex.x), floor(tex.y));\
+            else a = vec2(ceil(tex.x), ceil(tex.y));\
+            vec2 b = vec2(ceil(tex.x), floor(tex.y));\
+            vec2 c = vec2(floor(tex.x), ceil(tex.y));\
+            \
+            vec3 TEX = vec3(tex.x, tex.y, 1.0 - tex.x - tex.y);\
+            vec3 A = vec3(a.x, a.y, 1.0 - a.x - a.y);\
+            vec3 B = vec3(b.x, b.y, 1.0 - b.x - b.y);\
+            vec3 C = vec3(c.x, c.y, 1.0 - c.x - c.y);\
+            \
+            float alen = length(TEX - A);\
+            float blen = length(TEX - B);\
+            float clen = length(TEX - C);\
+            \
+            vec2 choice;\
+            if (alen < blen) {\
+                if (alen < clen) choice = a;\
+                else choice = c;\
+            } else {\
+                if (blen < clen) choice = b;\
+                else choice = c;\
+            }\
+            \
+            choice.x += choice.y * 0.5;\
+            choice.y *= 0.866025404;\
+            choice *= scale / texSize;\
+            vec3 color = texture2D(texture, choice).rgb;\
+            gl_FragColor = vec4(color, 1.0);\
+        }\
+    ');
+
+    slider(this, 'Scale', 3, 60, 20, 1, function(value) {
+        this.scale = value;
+    });
+}
+
+HexagonalPixelateFilter.prototype.name = 'Hexagonal Pixelate';
+
+HexagonalPixelateFilter.prototype.drawTo = function(original, texture) {
+    var this_ = this;
+    texture.drawTo(function() {
+        original.use();
+        this_.shader.uniforms({
+            scale: this_.scale,
+            texSize: [original.width, original.height]
         }).drawRect();
     });
 };
@@ -438,6 +502,55 @@ HueSaturationFilter.prototype.drawTo = function(original, texture) {
         this_.shader.uniforms({
             hue: this_.hue,
             saturation: this_.saturation
+        }).drawRect();
+    });
+};
+
+// src/filter/ink.js
+function InkFilter() {
+    this.shader = new Shader(null, '\
+        uniform sampler2D texture;\
+        uniform float strength;\
+        uniform vec2 texSize;\
+        varying vec2 texCoord;\
+        void main() {\
+            vec2 dx = vec2(1.0 / texSize.x, 0.0);\
+            vec2 dy = vec2(0.0, 1.0 / texSize.y);\
+            vec3 color = texture2D(texture, texCoord).rgb;\
+            float bigTotal = 0.0;\
+            float smallTotal = 0.0;\
+            vec3 bigAverage = vec3(0.0);\
+            vec3 smallAverage = vec3(0.0);\
+            for (float x = -2.0; x <= 2.0; x += 1.0) {\
+                for (float y = -2.0; y <= 2.0; y += 1.0) {\
+                    vec3 sample = texture2D(texture, texCoord + dx * x + dy * y).rgb;\
+                    bigAverage += sample;\
+                    bigTotal += 1.0;\
+                    if (abs(x) + abs(y) < 2.0) {\
+                        smallAverage += sample;\
+                        smallTotal += 1.0;\
+                    }\
+                }\
+            }\
+            vec3 edge = max(vec3(0.0), bigAverage / bigTotal - smallAverage / smallTotal);\
+            gl_FragColor = vec4(color - dot(edge, edge) * strength * strength * 200.0, 1.0);\
+        }\
+    ');
+
+    slider(this, 'Strength', 0, 1, 0.5, 0.01, function(value) {
+        this.strength = value;
+    });
+}
+
+InkFilter.prototype.name = 'Ink';
+
+InkFilter.prototype.drawTo = function(original, texture) {
+    var this_ = this;
+    texture.drawTo(function() {
+        original.use();
+        this_.shader.uniforms({
+            strength: this_.strength,
+            texSize: [original.width, original.height]
         }).drawRect();
     });
 };
