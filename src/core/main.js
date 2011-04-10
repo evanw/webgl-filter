@@ -129,6 +129,7 @@ function main() {
         new DotScreenFilter(),
         new EdgeWorkFilter(),
         new InkFilter(),
+        new GlassFilter(),
         new HexagonalPixelateFilter()
     ];
     for (var i = 0; i < filters.length; i++) {
