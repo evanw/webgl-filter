@@ -6,15 +6,21 @@ var filters;
 var displayShader;
 
 function initGL() {
-    var canvas3d = $('#canvas')[0];
-    gl = canvas3d.getContext('experimental-webgl');
-    displayShader = new Shader(null, '\
-        uniform sampler2D texture;\
-        varying vec2 texCoord;\
-        void main() {\
-            gl_FragColor = texture2D(texture, vec2(texCoord.x, 1.0 - texCoord.y));\
-        }\
-    ');
+    try {
+        var canvas3d = document.createElement('canvas');
+        gl = canvas3d.getContext('experimental-webgl');
+        $('.document').html('<div id="markers"></div>');
+        $('.document').append(canvas3d);
+        displayShader = new Shader(null, '\
+            uniform sampler2D texture;\
+            varying vec2 texCoord;\
+            void main() {\
+                gl_FragColor = texture2D(texture, vec2(texCoord.x, 1.0 - texCoord.y));\
+            }\
+        ');
+    } catch (e) {
+        $('.loading').html('Your browser does not support WebGL.<br>Please see <a href="http://www.khronos.org/webgl/wiki/Getting_a_WebGL_Implementation">Getting a WebGL Implementation</a>.');
+    }
 }
 
 function reloadImage(image) {
@@ -45,7 +51,6 @@ function startLoading() {
     image.onload = function() {
         reloadImage(image);
     };
-    // image.src = 'samples/Copenhagen_small.jpg';
     image.src = 'samples/Flowers_small.jpg';
 
     // sample images
