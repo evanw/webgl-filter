@@ -1,5 +1,3 @@
-![](https://github.com/evanw/webgl-filter/raw/master/filters.png)
-
 # WebGL Filter
 
 ### [View Live Demo](http://evanw.github.com/webgl-filter/)
@@ -9,3 +7,7 @@ This is an image editor written using WebGL that allows you to transform your im
 # Running
 
 While you can just open `www/index.html`, you won't be able to save because of the security protection on `file://` URLs. Instead, run `cd www && python -m SimpleHTTPServer` and visit `http://localhost:8000`.
+
+# Screenshot
+
+![](https://github.com/evanw/webgl-filter/raw/master/screenshot.png)
