@@ -1,43 +1,30 @@
 <!DOCTYPE html>
 <html><head>
-  <title></title>
-  <script type="text/javascript" src="jquery/jquery-1.5.1.min.js"></script>
-  <script type="text/javascript" src="jquery/jquery-ui-1.8.11.custom.min.js"></script>
-  <script type="text/javascript" src="generated.js"></script>
-  <script type="text/javascript">
-
-window.onload = hackny.main;
-
-  </script>
-  <link rel="stylesheet" type="text/css" href="style.css">
-  <link rel="stylesheet" type="text/css" href="jquery/jquery-ui-1.8.7.custom.css">
+    <title>WebGL Filter</title>
+    <script type="text/javascript" src="jquery/jquery-1.5.1.min.js"></script>
+    <script type="text/javascript" src="jquery/jquery.ui.slider.js"></script>
+    <script type="text/javascript" src="http://evanw.github.com/glfx.js/glfx.js"></script>
+    <script type="text/javascript" src="script.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
 </head><body>
-  <div class="toolbar">
-    <span id="load-save">
-      <div id="load-image">Load</div>
-      <div id="save-image">Save</div>
-    </span>
-    <span id="filters"><select></select></span>
-    <span id="controls"></span>
-  </div>
-
-  <div class="edit-area">
-    <div class="document">
-      <div class="loading">Loading...</div>
+    <div id="toolbar">
+        <div class="button" id="load">Load</div>
+        <div class="button" id="save">Save</div>
+        <!-- <div class="button disabled">Undo</div>
+        <div class="button disabled">Redo</div> -->
+        <div class="button" id="about">About</div>
     </div>
-  </div>
-
-  <div id="load-image-overlay">
-    <div id="close-overlay">Close</div>
-    Pick a sample image to get started...<br>
-    <p>
-      <img class="sample-image" src="samples/Bryce.jpg" height="100">
-      <img class="sample-image" src="samples/Copenhagen.jpg" height="100">
-      <img class="sample-image" src="samples/Flowers.jpg" height="100">
-      <img class="sample-image" src="samples/Wolf.jpg" height="100">
-    </p>
-    <hr>
-    <p>...or upload a file from your computer<br></p>
-    File: <input id="file" type="file"><br><button id="use-chosen-file">Upload</button>
-  </div>
+    <div id="sidebar"></div>
+    <div id="editor">
+        <div class="contents">
+            <div id="placeholder"></div>
+            <div id="nubs"></div>
+        </div>
+    </div>
+    <div id="fade"></div>
+    <div id="dialog"></div>
+    <div id="loading">
+        <script type="text/javascript">document.write('Loading...');</script>
+        <noscript>Please enable JavaScript and refresh this page</noscript>
+    </div>
 </body></html>
