@@ -225,8 +225,8 @@ body {
     position: absolute;
     left: 50%;
     top: 0;
-    width: 500px;
-    margin-left: -250px;
+    width: 650px;
+    margin-left: -325px;
     padding: 20px;
     background: #32302D;
     border: 1px solid black;
@@ -237,6 +237,16 @@ body {
 #dialog .contents {
     padding-bottom: 20px;
     line-height: 16px;
+}
+
+#dialog .contents .images {
+    padding: 15px 0 8px 0;
+}
+
+#dialog .contents .credits, #dialog .contents .credits a {
+    font-style: italic;
+    font-size: 10px;
+    color: #777;
 }
 
 #dialog .contents img {
