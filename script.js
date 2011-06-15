@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 var canvas;
+var canvas2d;
 var texture;
 var selectedItem;
 var selectedFilter;
@@ -48,6 +49,8 @@ function expandItem(item) {
 }
 
 function setSelectedFilter(filter) {
+    canvas2d.getContext('2d').clearRect(0, 0, canvas2d.width, canvas2d.height);
+
     // Set the new filter
     $('#nubs').html('');
     selectedFilter = filter;
@@ -58,6 +61,12 @@ function setSelectedFilter(filter) {
         for (var i = 0; i < filter.sliders.length; i++) {
             var slider = filter.sliders[i];
             $('#' + slider.id).slider('value', slider.value);
+        }
+
+        // Reset all segmented controls
+        for (var i = 0; i < filter.segmented.length; i++) {
+            var segmented = filter.segmented[i];
+            $('#' + segmented.id + '-' + segmented.initial).mousedown();
         }
 
         // Generate all nubs
@@ -79,6 +88,7 @@ function setSelectedFilter(filter) {
             filter[nub.name] = { x: x, y: y };
         }
 
+        if (filter.reset) filter.reset();
         filter.update();
     } else {
         canvas.draw(texture).update();
@@ -96,6 +106,8 @@ function init(image) {
         width: image.width,
         height: image.height
     });
+    canvas2d.width = image.width;
+    canvas2d.height = image.height;
 
     // We're done loading, show the UI to the user
     if (selectedItem) contractItem(selectedItem);
@@ -117,6 +129,7 @@ $(window).load(function() {
             '<a href="http://www.khronos.org/webgl/wiki/Getting_a_WebGL_Implementation">Getting a WebGL implementation</a>');
         return;
     }
+    canvas2d = $('#canvas2d')[0];
 
     // Generate the HTML for the sidebar
     var nextID = 0;
@@ -129,12 +142,37 @@ $(window).load(function() {
             var html = '<div class="item"><div class="title">' + filter.name + '</div><div class="contents"><table>';
             for (var j = 0; j < filter.sliders.length; j++) {
                 var slider = filter.sliders[j];
-                slider.id = 'slider' + nextID++;
+                slider.id = 'control' + nextID++;
                 html += '<tr><td>' + slider.label + ':</td><td><div class="slider" id="' + slider.id + '"></div></td></tr>';
             }
-            html += '</table><div class="button accept">Accept</div></div></div>';
+            for (var j = 0; j < filter.segmented.length; j++) {
+                var segmented = filter.segmented[j];
+                segmented.id = 'control' + nextID++;
+                html += '<tr><td>' + segmented.label + ':</td><td><div class="segmented">';
+                for (var k = 0; k < segmented.labels.length; k++) {
+                    html += '<div class="segment' + (k == segmented.initial ? ' selected' : '') + '" id="' + segmented.id + '-' + k + '">' + segmented.labels[k] + '</div>';
+                }
+                html += '</div></td></tr>';
+            }
+            html += '</table>';
+            html += '<div class="button accept">Accept</div></div></div>';
             var item = $(html).appendTo('#sidebar')[0];
             item.filter = filter;
+
+            // Make segmented controls
+            for (var j = 0; j < filter.segmented.length; j++) {
+                var segmented = filter.segmented[j];
+                filter[segmented.name] = segmented.initial;
+                for (var k = 0; k < segmented.labels.length; k++) {
+                    $('#' + segmented.id + '-' + k).mousedown((function(filter, segmented, index) { return function() {
+                        filter[segmented.name] = index;
+                        for (var k = 0; k < segmented.labels.length; k++) {
+                            $('#' + segmented.id + '-' + k)[index == k ? 'addClass' : 'removeClass']('selected');
+                        }
+                        filter.update();
+                    }; })(filter, segmented, k));
+                }
+            }
 
             // Set all initial nub values
             for (var j = 0; j < filter.nubs.length; j++) {
@@ -245,16 +283,22 @@ $(window).load(function() {
 // Filter object
 ////////////////////////////////////////////////////////////////////////////////
 
-function Filter(name, init, update) {
+function Filter(name, init, update, reset) {
     this.name = name;
     this.update = update;
+    this.reset = reset;
     this.sliders = [];
+    this.segmented = [];
     this.nubs = [];
     init.call(this);
 }
 
 Filter.prototype.addNub = function(name, x, y) {
     this.nubs.push({ name: name, x: x, y: y });
+};
+
+Filter.prototype.addSegmented = function(name, label, labels, initial) {
+    this.segmented.push({ name: name, label: label, labels: labels, initial: initial });
 };
 
 Filter.prototype.addSlider = function(name, label, min, max, value, step) {
@@ -334,16 +378,43 @@ var filters = {
             canvas.draw(texture).bulgePinch(this.center.x, this.center.y, this.radius, this.strength).update();
         }),
         new Filter('Perspective', function() {
+            this.addSegmented('showAfter', 'Edit point set', ['Before', 'After'], 1);
             this.addNub('a', 0.25, 0.25);
             this.addNub('b', 0.75, 0.25);
             this.addNub('c', 0.25, 0.75);
             this.addNub('d', 0.75, 0.75);
+            var update = this.update;
+            this.update = function() {
+                update.call(this);
+
+                // Draw a white rectangle connecting the four control points
+                var c = canvas2d.getContext('2d');
+                c.clearRect(0, 0, canvas2d.width, canvas2d.height);
+                for (var i = 0; i < 2; i++) {
+                    c.beginPath();
+                    c.lineTo(this.a.x, this.a.y);
+                    c.lineTo(this.b.x, this.b.y);
+                    c.lineTo(this.d.x, this.d.y);
+                    c.lineTo(this.c.x, this.c.y);
+                    c.closePath();
+                    c.lineWidth = i ? 2 : 4;
+                    c.strokeStyle = i ? 'white' : 'black';
+                    c.stroke();
+                }
+            };
         }, function() {
-            var xmin = canvas.width * 0.25, ymin = canvas.height * 0.25;
-            var xmax = canvas.width * 0.75, ymax = canvas.height * 0.75;
-            var before = [xmin, ymin, xmax, ymin, xmin, ymax, xmax, ymax];
-            var after = [this.a.x, this.a.y, this.b.x, this.b.y, this.c.x, this.c.y, this.d.x, this.d.y];
-            canvas.draw(texture).perspective(before, after).update();
+            var points = [this.a.x, this.a.y, this.b.x, this.b.y, this.c.x, this.c.y, this.d.x, this.d.y];
+            if (this.showAfter) {
+                this.after = points;
+                canvas.draw(texture).perspective(this.before, this.after).update();
+            } else {
+                this.before = points;
+                canvas.draw(texture).update();
+            }
+        }, function() {
+            var w = canvas.width, h = canvas.height;
+            this.before = [0, 0, w, 0, 0, h, w, h];
+            this.after = [this.a.x, this.a.y, this.b.x, this.b.y, this.c.x, this.c.y, this.d.x, this.d.y];
         })
     ],
     'Fun': [
