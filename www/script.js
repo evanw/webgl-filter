@@ -245,9 +245,8 @@ $(window).load(function() {
 // Filter object
 ////////////////////////////////////////////////////////////////////////////////
 
-function Filter(name, func, init, update) {
+function Filter(name, init, update) {
     this.name = name;
-    this.func = func;
     this.update = update;
     this.sliders = [];
     this.nubs = [];
@@ -268,32 +267,43 @@ Filter.prototype.addSlider = function(name, label, min, max, value, step) {
 
 var filters = {
     'Adjust': [
-        new Filter('Brightness / Contrast', 'brightnessContrast', function() {
+        new Filter('Brightness / Contrast', function() {
             this.addSlider('brightness', 'Brightness', -1, 1, 0, 0.01);
             this.addSlider('contrast', 'Contrast', -1, 1, 0, 0.01);
         }, function() {
             canvas.draw(texture).brightnessContrast(this.brightness, this.contrast).update();
         }),
-        new Filter('Hue / Saturation', 'hueSaturation', function() {
+        new Filter('Hue / Saturation', function() {
             this.addSlider('hue', 'Hue', -1, 1, 0, 0.01);
             this.addSlider('saturation', 'Saturation', -1, 1, 0, 0.01);
         }, function() {
             canvas.draw(texture).hueSaturation(this.hue, this.saturation).update();
+        }),
+        new Filter('Denoise', function() {
+            this.addSlider('strength', 'Strength', 0, 1, 0.5, 0.01);
+        }, function() {
+            canvas.draw(texture).denoise(3 + 200 * Math.pow(1 - this.strength, 4)).update();
+        }),
+        new Filter('Unsharp Mask', function() {
+            this.addSlider('radius', 'Radius', 0, 200, 20, 1);
+            this.addSlider('strength', 'Strength', 0, 5, 2, 0.01);
+        }, function() {
+            canvas.draw(texture).unsharpMask(this.radius, this.strength).update();
         })
     ],
     'Blur': [
-        new Filter('Zoom Blur', 'zoomBlur', function() {
+        new Filter('Zoom Blur', function() {
             this.addNub('center', 0.5, 0.5);
             this.addSlider('strength', 'Strength', 0, 1, 0.3, 0.01);
         }, function() {
             canvas.draw(texture).zoomBlur(this.center.x, this.center.y, this.strength).update();
         }),
-        new Filter('Triangle Blur', 'triangleBlur', function() {
+        new Filter('Triangle Blur', function() {
             this.addSlider('radius', 'Radius', 0, 200, 50, 1);
         }, function() {
             canvas.draw(texture).triangleBlur(this.radius).update();
         }),
-        new Filter('Tilt Shift', 'tiltShift', function() {
+        new Filter('Tilt Shift', function() {
             this.addNub('start', 0.15, 0.75);
             this.addNub('end', 0.75, 0.6);
             this.addSlider('blurRadius', 'Radius', 0, 50, 15, 1);
@@ -301,7 +311,7 @@ var filters = {
         }, function() {
             canvas.draw(texture).tiltShift(this.start.x, this.start.y, this.end.x, this.end.y, this.blurRadius, this.gradientRadius).update();
         }),
-        new Filter('Lens Blur', 'lensBlur', function() {
+        new Filter('Lens Blur', function() {
             this.addSlider('radius', 'Radius', 0, 20, 10, 1);
             this.addSlider('brightness', 'Brightness', -1, 1, 0.75, 0.01);
         }, function() {
@@ -309,21 +319,21 @@ var filters = {
         })
     ],
     'Warp': [
-        new Filter('Swirl', 'swirl', function() {
+        new Filter('Swirl', function() {
             this.addNub('center', 0.5, 0.5);
             this.addSlider('angle', 'Angle', -25, 25, 3, 0.1);
             this.addSlider('radius', 'Radius', 0, 600, 200, 1);
         }, function() {
             canvas.draw(texture).swirl(this.center.x, this.center.y, this.radius, this.angle).update();
         }),
-        new Filter('Bulge / Pinch', 'bulgePinch', function() {
+        new Filter('Bulge / Pinch', function() {
             this.addNub('center', 0.5, 0.5);
             this.addSlider('strength', 'Strength', -1, 1, 0.5, 0.01);
             this.addSlider('radius', 'Radius', 0, 600, 200, 1);
         }, function() {
             canvas.draw(texture).bulgePinch(this.center.x, this.center.y, this.radius, this.strength).update();
         }),
-        new Filter('Perspective', 'perspective', function() {
+        new Filter('Perspective', function() {
             this.addNub('a', 0.25, 0.25);
             this.addNub('b', 0.75, 0.25);
             this.addNub('c', 0.25, 0.75);
@@ -337,30 +347,30 @@ var filters = {
         })
     ],
     'Fun': [
-        new Filter('Ink', 'ink', function() {
+        new Filter('Ink', function() {
             this.addSlider('strength', 'Strength', 0, 1, 0.25, 0.01);
         }, function() {
             canvas.draw(texture).ink(this.strength).update();
         }),
-        new Filter('Edge Work', 'edgeWork', function() {
+        new Filter('Edge Work', function() {
             this.addSlider('radius', 'Radius', 0, 200, 10, 1);
         }, function() {
             canvas.draw(texture).edgeWork(this.radius).update();
         }),
-        new Filter('Hexagonal Pixelate', 'hexagonalPixelate', function() {
+        new Filter('Hexagonal Pixelate', function() {
             this.addNub('center', 0.5, 0.5);
             this.addSlider('scale', 'Scale', 10, 100, 20, 1);
         }, function() {
             canvas.draw(texture).hexagonalPixelate(this.center.x, this.center.y, this.scale).update();
         }),
-        new Filter('Dot Screen', 'dotScreen', function() {
+        new Filter('Dot Screen', function() {
             this.addNub('center', 0.5, 0.5);
             this.addSlider('angle', 'Angle', 0, Math.PI / 2, 1.1, 0.01);
             this.addSlider('size', 'Size', 3, 20, 3, 0.01);
         }, function() {
             canvas.draw(texture).dotScreen(this.center.x, this.center.y, this.angle, this.size).update();
         }),
-        new Filter('Color Halftone', 'colorHalftone', function() {
+        new Filter('Color Halftone', function() {
             this.addNub('center', 0.5, 0.5);
             this.addSlider('angle', 'Angle', 0, Math.PI / 2, 1.1, 0.01);
             this.addSlider('size', 'Size', 3, 20, 4, 0.01);
