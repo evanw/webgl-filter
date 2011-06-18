@@ -141,7 +141,16 @@ body {
 
 #sidebar .item .contents .button {
     line-height: 24px;
-    margin: 10px 0 0 0;
+    margin: 15px 0 0 0;
+}
+
+#sidebar .item .contents .reset {
+    text-decoration: underline;
+    display: inline-block;
+    line-height: 24px;
+    margin: 15px 0 0 15px;
+    cursor: pointer;
+    color: #777;
 }
 
 #sidebar .item .contents .slider {
@@ -182,6 +191,13 @@ body {
 #sidebar .item .contents .segment:last-child {
     -webkit-border-top-right-radius: 5px;
     -webkit-border-bottom-right-radius: 5px;
+}
+
+#sidebar .item .contents .curves {
+    width: 200px;
+    height: 200px;
+    margin: 10px 0;
+    border: 1px solid #4B4947;
 }
 
 #sidebar .item.active {
