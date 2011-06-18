@@ -63,6 +63,13 @@ function setSelectedFilter(filter) {
             $('#' + slider.id).slider('value', slider.value);
         }
 
+        // Reset all curves
+        for (var i = 0; i < filter.curves.length; i++) {
+            var curves = filter.curves[i];
+            filter[curves.name] = [[0, 0], [1, 1]];
+            curves.draw();
+        }
+
         // Reset all segmented controls
         for (var i = 0; i < filter.segmented.length; i++) {
             var segmented = filter.segmented[i];
@@ -155,9 +162,21 @@ $(window).load(function() {
                 html += '</div></td></tr>';
             }
             html += '</table>';
-            html += '<div class="button accept">Accept</div></div></div>';
+            for (var j = 0; j < filter.curves.length; j++) {
+                var curves = filter.curves[j];
+                curves.id = 'control' + nextID++;
+                html += '<canvas class="curves" id="' + curves.id + '"></canvas>';
+            }
+            html += '<div class="button accept">Accept</div><div class="reset">Reset</div></div></div>';
             var item = $(html).appendTo('#sidebar')[0];
             item.filter = filter;
+
+            // Add reset button
+            (function(filter) {
+                $(item).find('.reset').click(function() {
+                    setSelectedFilter(filter);
+                });
+            })(filter);
 
             // Make segmented controls
             for (var j = 0; j < filter.segmented.length; j++) {
@@ -180,6 +199,105 @@ $(window).load(function() {
                 var x = nub.x * canvas.width;
                 var y = nub.y * canvas.height;
                 filter[nub.name] = { x: x, y: y };
+            }
+
+            // Set up curves
+            for (var j = 0; j < filter.curves.length; j++) {
+                var curves = filter.curves[j];
+                (function(curves, filter) {
+                    var canvas = $('#' + curves.id)[0];
+                    var c = canvas.getContext('2d');
+                    var w = canvas.width = $(canvas).width();
+                    var h = canvas.height = $(canvas).height();
+                    var start = 0;
+                    var end = 1;
+
+                    // Make sure there's always a start and end node
+                    function fixCurves() {
+                        if (point[0] == 0) start = point[1];
+                        if (point[0] == 1) end = point[1];
+                        var points = filter[curves.name];
+                        var foundStart = false;
+                        var foundEnd = false;
+                        for (var i = 0; i < points.length; i++) {
+                            var p = points[i];
+                            if (p[0] == 0) {
+                                foundStart = true;
+                                if (point[0] == 0 && p != point) points.splice(i--, 1);
+                            } else if (p[0] == 1) {
+                                foundEnd = true;
+                                if (point[0] == 1 && p != point) points.splice(i--, 1);
+                            }
+                        }
+                        if (!foundStart) points.push([0, start]);
+                        if (!foundEnd) points.push([1, end]);
+                    };
+
+                    // Render the curves to the canvas
+                    curves.draw = function() {
+                        var points = filter[curves.name];
+                        var map = fx.splineInterpolate(points);
+                        c.clearRect(0, 0, w, h);
+                        c.strokeStyle = '#4B4947';
+                        c.beginPath();
+                        for (var i = 0; i < map.length; i++) {
+                            c.lineTo(i / map.length * w, (1 - map[i] / 255) * h);
+                        }
+                        c.stroke();
+                        c.fillStyle = 'white';
+                        for (var i = 0; i < points.length; i++) {
+                            var p = points[i];
+                            c.beginPath();
+                            c.arc(p[0] * w, (1 - p[1]) * h, 3, 0, Math.PI * 2, false);
+                            c.fill();
+                        }
+                    };
+
+                    // Allow the curves to be manipulated using the mouse
+                    var dragging = false;
+                    var point;
+                    function getMouse(e) {
+                        var offset = $(canvas).offset();
+                        var x = Math.max(0, Math.min(1, (e.pageX - offset.left) / w));
+                        var y = Math.max(0, Math.min(1, 1 - (e.pageY - offset.top) / h));
+                        return [x, y];
+                    }
+                    $(canvas).mousedown(function(e) {
+                        var points = filter[curves.name];
+                        point = getMouse(e);
+                        for (var i = 0; i < points.length; i++) {
+                            var p = points[i];
+                            var x = (p[0] - point[0]) * w;
+                            var y = (p[1] - point[1]) * h;
+                            if (x * x + y * y < 5 * 5) {
+                                point = p;
+                                break;
+                            }
+                        }
+                        if (i == points.length) points.push(point);
+                        dragging = true;
+                        fixCurves();
+                        curves.draw();
+                        filter.update();
+                    });
+                    $(document).mousemove(function(e) {
+                        if (dragging) {
+                            var p = getMouse(e);
+                            point[0] = p[0];
+                            point[1] = p[1];
+                            fixCurves();
+                            curves.draw();
+                            filter.update();
+                        }
+                    });
+                    $(document).mouseup(function() {
+                        dragging = false;
+                    });
+
+                    // Set the initial curves
+                    filter[curves.name] = [[0, 0], [1, 1]];
+                    curves.draw();
+                })(curves, filter);
             }
 
             // Make jQuery UI sliders
@@ -288,6 +406,7 @@ function Filter(name, init, update, reset) {
     this.update = update;
     this.reset = reset;
     this.sliders = [];
+    this.curves = [];
     this.segmented = [];
     this.nubs = [];
     init.call(this);
@@ -295,6 +414,10 @@ function Filter(name, init, update, reset) {
 
 Filter.prototype.addNub = function(name, x, y) {
     this.nubs.push({ name: name, x: x, y: y });
+};
+
+Filter.prototype.addCurves = function(name) {
+    this.curves.push({ name: name });
 };
 
 Filter.prototype.addSegmented = function(name, label, labels, initial) {
@@ -322,6 +445,11 @@ var filters = {
             this.addSlider('saturation', 'Saturation', -1, 1, 0, 0.01);
         }, function() {
             canvas.draw(texture).hueSaturation(this.hue, this.saturation).update();
+        }),
+        new Filter('Curves', function() {
+            this.addCurves('points');
+        }, function() {
+            canvas.draw(texture).curves(this.points).update();
         }),
         new Filter('Denoise', function() {
             this.addSlider('strength', 'Strength', 0, 1, 0.5, 0.01);
