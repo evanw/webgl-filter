@@ -379,7 +379,9 @@ $(window).load(function() {
         loadImage(e.target.src);
     });
     $('#save').click(function() {
-        window.open(canvas.toDataURL('image/png'));
+        //canvas.update();
+        window.open(canvas.update().toDataURL('image/png'));
+
     });
     $('#about').click(function() {
         $('#dialog').html('<div class="contents">Copyright 2011 <a href="http://madebyevan.com">Evan Wallace</a>' +
