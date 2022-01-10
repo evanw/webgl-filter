@@ -133,7 +133,7 @@ $(window).load(function() {
         canvas = fx.canvas().replace($('#placeholder')[0]);
     } catch (e) {
         $('#loading').html('<div class="sadface">:(</div>Sorry, but this browser doesn\'t support WebGL.<br>Please see ' +
-            '<a href="http://www.khronos.org/webgl/wiki/Getting_a_WebGL_Implementation">Getting a WebGL implementation</a>');
+            '<a href="https://get.webgl.org/get-a-webgl-implementation/">Getting a WebGL implementation</a>');
         return;
     }
     canvas2d = $('#canvas2d')[0];
@@ -355,14 +355,14 @@ $(window).load(function() {
             '<img class="loader" src="samples/leaf.jpg" height="100">' +
             '<img class="loader" src="samples/perspective.jpg" height="100">' +
             '</div><div class="credits">Flickr image credits in order: ' +
-            '<a href="http://www.flickr.com/photos/matthigh/2125630879/">matthigh</a>, ' +
-            '<a href="http://www.flickr.com/photos/delosj/5816379127/">delosj</a>, ' +
-            '<a href="http://www.flickr.com/photos/stuckincustoms/219537913/">stuckincustoms</a>, ' +
-            '<a href="http://www.flickr.com/photos/pasma/580401331/">pasma</a>, ' +
-            '<a href="http://www.flickr.com/photos/delosj/5546225759/">delosj</a>, ' +
-            '<a href="http://www.flickr.com/photos/seriousbri/3736154699/">seriousbri</a>, ' +
-            '<a href="http://www.flickr.com/photos/melisande-origami/157818928/">melisande-origami</a>, and ' +
-            '<a href="http://www.flickr.com/photos/stuckincustoms/4669163231/">stuckincustoms</a>' +
+            '<a href="https://www.flickr.com/photos/matthigh/2125630879/">matthigh</a>, ' +
+            '<a href="https://www.flickr.com/photos/delosj/5816379127/">delosj</a>, ' +
+            '<a href="https://www.flickr.com/photos/stuckincustoms/219537913/">stuckincustoms</a>, ' +
+            '<a href="https://www.flickr.com/photos/pasma/580401331/">pasma</a>, ' +
+            '<a href="https://www.flickr.com/photos/delosj/5546225759/">delosj</a>, ' +
+            '<a href="https://www.flickr.com/photos/seriousbri/3736154699/">seriousbri</a>, ' +
+            '<a href="https://www.flickr.com/photos/melisande-origami/157818928/">melisande-origami</a>, and ' +
+            '<a href="https://www.flickr.com/photos/stuckincustoms/4669163231/">stuckincustoms</a>' +
             '</div></div>' +
             '<div class="button"><input type="file" class="upload">Upload File...</div>' +
             '<div class="button closedialog">Cancel</div>');
@@ -382,10 +382,10 @@ $(window).load(function() {
         window.open(canvas.toDataURL('image/png'));
     });
     $('#about').click(function() {
-        $('#dialog').html('<div class="contents">Copyright 2011 <a href="http://madebyevan.com">Evan Wallace</a>' +
-        '<br><br>This application is powered by <a href="http://evanw.github.com/glfx.js/">glfx.js</a>, an ' +
+        $('#dialog').html('<div class="contents">Copyright 2011 <a href="https://madebyevan.com">Evan Wallace</a>' +
+        '<br><br>This application is powered by <a href="https://evanw.github.io/glfx.js/">glfx.js</a>, an ' +
         'open-source image effect library that uses WebGL.&nbsp; The source code for this application is ' +
-        'also <a href="http://github.com/evanw/webgl-filter/">available on GitHub</a>.</div><div class="button ' +
+        'also <a href="https://github.com/evanw/webgl-filter/">available on GitHub</a>.</div><div class="button ' +
         'closedialog">Close</div>');
         showDialog();
     });
